@@ -1,0 +1,462 @@
+<html>
+  <head>
+    <title>FishTank 2.0</title>
+    <script src="http://cloud.github.com/downloads/processing-js/processing-js/processing-1.4.1.min.js"></script>
+    <script type="text/processing" data-processing-target="mycanvas">
+        // defining global variables to be used in multiple classes
+        // keeping track of the positions of the bubble and the fish
+        var indicator = Array();
+
+        var xPosE = Array();
+
+        var yPosE = Array();
+
+        var fishNumber;
+
+        // defining global variables that shouldn't change (they set the size of the window)
+        var WINDOW_WIDTH = 1000;
+        var WINDOW_HEIGHT = 600; 
+
+        // creating the array lists for fish, eel, and bubble
+        ArrayList<Fish> fishList; 
+        ArrayList<Eel> eelList;
+        ArrayList<Bubble> bubbleList;
+
+        // setup function that runs only once at the beginning of the program
+        void setup() {
+          // putting values into the fish array list in order to create a random number of fish with random speeds
+          fishList = new ArrayList<Fish>(); 
+            var numberOfFish = random(1, 6);
+            for(var i = 0; i < numberOfFish; i++) {
+            fishSpeed = random(2, 6);
+              // adds a new fish, created from the Fish class, and sets its parameters
+              fishList.add(new Fish(-130, fishSpeed));
+              indicator[i] = "Y"; 
+        }
+
+          // using the random number generated before to create the same number of bubbles
+          bubbleList = new ArrayList<Bubble>(); 
+            var numberOfBubble = numberOfFish;
+            for(var i = 0; i < numberOfBubble; i++) {
+            bubbleSpeed = 3;
+              bubbleList.add(new Bubble(-130, bubbleSpeed)); 
+        }
+
+          // building the array to store a random number of eels
+          eelList = new ArrayList<Eel>();
+            var numberOfEel = random(1, 4);
+            for(var i = 0; i < numberOfEel; i++) {
+            eelSpeed = random(2, 10);
+              eelList.add(new Eel(-130, eelSpeed)); 
+        }
+
+          // creating the window size
+          size(WINDOW_WIDTH, WINDOW_HEIGHT); 
+        
+          // setting the frame rate (how many times the program runs per second)
+          frameRate(30); 
+        
+        }
+
+        // setting the parameters of the crab class to numerical values in order to create the incrementation (no array needed because only one crab)
+        Crab crabWalk = new Crab(-130, 1.5);
+        
+        // begin drawing
+        void draw() { 
+        
+          // set the background color to blue
+          background(89, 176, 247);
+
+          // create seaweed 1
+          yValue = 10
+          xCoordinate = 0
+          seaweed();
+
+          // create seaweed 3
+          yValue = 8
+          xCoordinate = 400
+          seaweed();
+
+          // running the functions that draw and move the fish and bubbles
+          for(var i = 0; i < fishList.size(); i++) {
+      		Fish currentFish = fishList.get(i);
+         	fishNumber = i;
+      		currentFish.updateFish();
+      		currentFish.drawFish();
+
+	        Bubble currentBubble = bubbleList.get(i);
+	        currentBubble.updateBubble();
+	        currentBubble.drawBubble();
+          } 
+
+          	// running the functions that draw and move the eels
+      		for(var i = 0; i < eelList.size(); i++) {
+      		Eel currentEel = eelList.get(i);
+      		currentEel.updateEel();
+      		currentEel.drawEel();
+      		} 
+
+          // create seaweed 2 - this is drawn after the fish and eels so that the fish and eels will swim behind
+          yValue = 4
+          xCoordinate = 150
+          seaweed();
+
+          // create seaweed 4
+          yValue = 6
+          xCoordinate = -175
+          seaweed();
+
+          // create the seafloor as a rectangle
+          fill(102, 57, 12);
+          rect(0, 370+200, 400+600, 33);
+
+          // running the function that draws and moves the crab
+          crabWalk.moveCrab();
+
+        } 
+        
+        // new class ----------------------------------------------------------------------------------------------------------------------------------
+        class Eel {    
+          // listing the attributes
+          var xPosEel, speedEel, eelBodyColor1, eelBodyColor2, eelBodyColor3, eelSpotColor1, eelSpotColor2, eelSpotColor3, eelLength, eelHeight, yPosEel;
+        
+          // setting the constructor
+          Eel (float xEel, float sEel) {  
+        
+            // giving the attributes values
+            xPosEel = xEel; 
+        
+            speedEel = sEel; 
+
+            eelBodyColor1 = random(0, 255);
+
+            eelBodyColor2 = random(0, 255);
+
+            eelBodyColor3 = random(0, 255);
+
+            eelSpotColor1 = random(0, 255);
+
+            eelSpotColor2 = random(0, 255);
+
+            eelSpotColor3 = random(0, 255);
+
+            eelLength = random(170, 220);
+
+            eelHeight = random(15, 30);
+
+            yPosEel = random(50, 550);
+        
+          } 
+          
+          // creating the function that moves and draws the eel by using two other functions (update and draw)
+          void moveEel() {
+            updateEel();
+            drawEel();
+          }
+          
+          // function that moves the eel by incrementation and resets the x-value of the eel to -130 (left) when it swims off the edge of the screen (right)
+          void updateEel() { 
+        
+            xPosEel += speedEel; 
+        
+            if (xPosEel-130 > width) { 
+              xPosEel = -130; 
+            } 
+            
+        
+          }
+          
+          // function that draws a stationary eel
+          void drawEel() {
+            // eel body
+            stroke(0, 0, 0);
+            strokeWeight(3);
+            fill(eelBodyColor1, eelBodyColor2, eelBodyColor3);
+            ellipse(xPosEel, yPosEel, eelLength, eelHeight);
+            // eel eye
+            fill(255, 255, 255);
+            ellipse(xPosEel+65, yPosEel, 14, 14);
+            fill(0, 0, 0);
+            ellipse(xPosEel+66, yPosEel, 5, 5);
+            // eel spots
+            strokeWeight(2);
+            fill(eelSpotColor1, eelSpotColor2, eelSpotColor3);
+            ellipse(xPosEel+45, yPosEel, 7, 7);
+            ellipse(xPosEel+25, yPosEel, 7, 7);
+            ellipse(xPosEel+5, yPosEel, 7, 7);
+            ellipse(xPosEel-15, yPosEel, 7, 7);
+            ellipse(xPosEel-35, yPosEel, 7, 7);
+            ellipse(xPosEel-55, yPosEel, 7, 7);
+            ellipse(xPosEel-75, yPosEel, 7, 7);
+          } 
+        
+        }
+
+        // new class ----------------------------------------------------------------------------------------------------------------------------------
+        class Fish {  
+          // listing the attributes  
+          var xPosFish, speedFish, fishBodyColor1, fishBodyColor2, fishBodyColor3, fishStripeColor1, fishStripeColor2, fishStripeColor3, yPosFish;
+        
+          // setting the constructor
+          Fish (float xFish, float sFish) {  
+            
+            // giving the attributes values
+            xPosFish = xFish; 
+        
+            speedFish = sFish; 
+
+            fishBodyColor1 = random(0, 255);
+
+            fishBodyColor2 = random(0, 255);
+
+            fishBodyColor3 = random(0, 255);
+
+            fishStripeColor1 = random(0, 255);
+
+            fishStripeColor2 = random(0, 255);
+
+            fishStripeColor3 = random(0, 255);
+
+            yPosFish = random(50, 500);
+        
+          } 
+          
+          // creating the function that moves and draws the fish by using two other functions (update and draw)
+          void moveFish() {
+            updateFish();
+            drawFish();
+          }
+          
+          // function that moves the fish by incrementation and resets the x-value of the fish to -90 (left) when it swims off the edge of the screen (right)
+          void updateFish() { 
+        
+            xPosFish += speedFish; 
+        
+            if (xPosFish-90 > width) { 
+              xPosFish = -90; 
+            } 
+            
+        
+          }
+          
+          // function that draws a stationary fish
+          void drawFish() {
+            // fish body and tail
+            strokeWeight(3);
+            fill(fishBodyColor1, fishBodyColor2, fishBodyColor3);
+            ellipse(xPosFish, yPosFish, 100, 70);
+            triangle(xPosFish-52, yPosFish+2, xPosFish-82, yPosFish-28, xPosFish-82, yPosFish+32);
+            // fish eye
+            fill(255, 255, 255);
+            ellipse(xPosFish+24, yPosFish-11, 18, 18);
+            fill(0, 0, 0);
+            ellipse(xPosFish+26, yPosFish-11, 7, 7);
+            // fish stripes
+            strokeWeight(2); 
+            fill(fishStripeColor1, fishStripeColor2, fishStripeColor3);
+            ellipse(xPosFish-16, yPosFish+1, -6, 66);
+            ellipse(xPosFish+1, yPosFish, -6, 71);
+            ellipse(xPosFish-34, yPosFish, -6, 53);
+            ellipse(xPosFish+20, yPosFish+15, -6, 36);
+            ellipse(xPosFish+20, yPosFish-26, -6, 13);
+            ellipse(xPosFish+40, yPosFish, -6, 37);
+            ellipse(xPosFish-63, yPosFish+2, -6, 20);
+            ellipse(xPosFish-74, yPosFish+2, -6, 44);
+
+            // if statement that gives the global variable "xPosE" the value of xPosFish to use in the Bubble class (only when indicator = "Y")
+            // need [fishNumber] so that xPosE will grab the xPosFish of each fish created, not just one xPosFish value
+            if (indicator[fishNumber] == "Y") {
+            	xPosE[fishNumber] = xPosFish+55;
+            	indicator[fishNumber] = "N";
+            }
+            // statement that sets the global variable "yPosE" equal to the value of yPosFish to use in the Bubble class
+            // need [fishNumber] so that yPosE will grab the yPosFish of each fish created, not just one yPosFish value
+            yPosE[fishNumber] = yPosFish
+
+          } 
+        }
+
+      // new class ----------------------------------------------------------------------------------------------------------------------------------
+  		class Bubble {    
+          // listing the attributes
+          var yPosBubble, speedBubble, xPosFish;
+        
+          // setting the constructor
+          Bubble (float yBubble, float sBubble) {  
+        
+            // giving the attributes values
+            yPosBubble = yBubble; 
+        
+            speedBubble = sBubble; 
+        
+          } 
+
+          // creating the function that moves and draws the bubble by using two other functions (update and draw)
+          void moveBubble() {
+            updateBubble();
+            drawBubble();
+          }
+          
+          // function that moves the bubble by decrementation
+          void updateBubble() { 
+        
+            yPosBubble -= speedBubble; 
+        
+          }
+          
+          // function that draws a stationary bubble
+          void drawBubble() {
+          	strokeWeight(3);
+          	fill(255, 255, 255);
+          	ellipse(xPosE[fishNumber], yPosBubble, 12, 12);
+
+            // if statement that resets the y-value of the bubble to the y position of the fish when it floats off the top of the screen
+            if (yPosBubble+10 < 0) { 
+              // [fishNumber] is necessary as it pulls all of the spawned yPosFish values down, not just one
+              yPosBubble = yPosE[fishNumber]; 
+              // need an indicator for each fish bubble to tell fish function where to create the new bubble in relation to the fish, hence the [fishNumber]
+              indicator[fishNumber] = "Y";
+            } 
+          } 
+        }
+
+        // new class ----------------------------------------------------------------------------------------------------------------------------------
+        class Crab {    
+          // listing the attributes
+          var xPosCrab, speedCrab, crabBodyColor1, crabBodyColor2, crabBodyColor3, crabToeColor1, crabToeColor2, crabToeColor3;
+        
+          // setting the constructor
+          Crab (float xCrab, float sCrab) {  
+        
+            // giving the attributes values
+            xPosCrab = xCrab; 
+        
+            speedCrab = sCrab; 
+
+            crabBodyColor1 = random(0, 255);
+
+            crabBodyColor2 = random(0, 255);
+
+            crabBodyColor3 = random(0, 255);
+
+            crabToeColor1 = random(0, 255);
+
+            crabToeColor2 = random(0, 255);
+
+            crabToeColor3 = random(0, 255);
+        
+          } 
+          
+          // creating the function that moves and draws the crab by using two other functions (update and draw)
+          void moveCrab() {
+            updateCrab();
+            drawCrab();
+          }
+          
+          // function that moves the crab by incrementation and resets the x-value of the crab to -120 (left) when it walks off the edge of the screen (right)
+          void updateCrab() { 
+        
+            xPosCrab += speedCrab; 
+        
+            if (xPosCrab-90 > width) { 
+              xPosCrab = -120; 
+            } 
+            
+        
+          }
+          
+          // function that draws a stationary crab
+          void drawCrab() {
+            // crab body
+            strokeWeight(3);
+            fill(crabBodyColor1, crabBodyColor2, crabBodyColor3);
+            rect(xPosCrab, 311+200, 76, 57);
+            // crab legs
+            // left legs
+            beginShape();
+            vertex(xPosCrab, 344+200);
+            vertex(xPosCrab-20, 344+200);
+            vertex(xPosCrab-20, 369+200);
+            vertex(xPosCrab-10, 369+200);
+            vertex(xPosCrab-10, 356+200);
+            vertex(xPosCrab, 356+200);
+            endShape(CLOSE);
+            beginShape();
+            vertex(xPosCrab, 334+200);
+            vertex(xPosCrab-30, 334+200);
+            vertex(xPosCrab-30, 369+200);
+            vertex(xPosCrab-20, 369+200);
+            vertex(xPosCrab-20, 346+200);
+            vertex(xPosCrab, 346+200);
+            endShape(CLOSE);
+            beginShape();
+            vertex(xPosCrab, 322+200);
+            vertex(xPosCrab-40, 322+200);
+            vertex(xPosCrab-40, 369+200);
+            vertex(xPosCrab-30, 369+200);
+            vertex(xPosCrab-30, 334+200);
+            vertex(xPosCrab, 334+200);
+            endShape(CLOSE);
+            // right legs
+            beginShape();
+            vertex(xPosCrab+77, 344+200);
+            vertex(xPosCrab+97, 344+200);
+            vertex(xPosCrab+97, 369+200);
+            vertex(xPosCrab+87, 369+200);
+            vertex(xPosCrab+87, 356+200);
+            vertex(xPosCrab+77, 356+200);
+            endShape(CLOSE);
+            beginShape();
+            vertex(xPosCrab+77, 334+200);
+            vertex(xPosCrab+107, 334+200);
+            vertex(xPosCrab+107, 369+200);
+            vertex(xPosCrab+97, 369+200);
+            vertex(xPosCrab+97, 346+200);
+            vertex(xPosCrab+77, 346+200);
+            endShape(CLOSE);
+            beginShape();
+            vertex(xPosCrab+77, 322+200);
+            vertex(xPosCrab+117, 322+200);
+            vertex(xPosCrab+117, 369+200);
+            vertex(xPosCrab+107, 369+200);
+            vertex(xPosCrab+107, 334+200);
+            vertex(xPosCrab+77, 334+200);
+            endShape(CLOSE);
+            // crab eyes
+            fill(255, 255, 255);
+            ellipse(xPosCrab+20, 332+200, 25, 25);
+            ellipse(xPosCrab+54, 332+200, 25, 25);
+            fill(0, 0, 0);
+            ellipse(xPosCrab+20, 332+200, 10, 10);
+            ellipse(xPosCrab+54, 332+200, 10, 10);
+            // crab toes
+            fill(crabToeColor1, crabToeColor2, crabToeColor3);
+            rect(xPosCrab-20, 362+200, 9, 6);
+            rect(xPosCrab-30, 362+200, 9, 6);
+            rect(xPosCrab-40, 362+200, 9, 6);
+            rect(xPosCrab+87, 362+200, 9, 6);
+            rect(xPosCrab+97, 362+200, 9, 6);
+            rect(xPosCrab+107, 362+200, 9, 6);
+          } 
+        }
+
+        // defining a function in order to create seaweed in different locations and of different lengths
+        void seaweed() {
+          for (i = -10; i <= yValue; i++) {
+            strokeWeight(2);
+            fill(20, 110, 4);
+            beginShape();
+            vertex(350+xCoordinate, 440-(12*i));
+            vertex(330+xCoordinate, 430-(12*i));
+            vertex(350+xCoordinate, 455-(12*i));
+            vertex(370+xCoordinate, 430-(12*i));
+            endShape(CLOSE);
+          }
+        }
+        </script> 
+    </head>
+    
+    <body>
+    <canvas id="mycanvas"></canvas>
+  </body>
+</html>
